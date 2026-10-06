@@ -1,4 +1,6 @@
+# Put the held `object` down on the table at (x, y) in base_link [m].
 string object
-string zone
+float64 x
+float64 y
 ---
 string status

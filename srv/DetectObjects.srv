@@ -1,0 +1,11 @@
+# Latest overhead-camera detection: every cube found on the table and every zone's state.
+---
+bool success
+string message
+string[] names
+float64[] x
+float64[] y
+float64[] yaw
+string[] zones
+# Name of the object inside each zone, "" when the zone is free.
+string[] zone_occupants

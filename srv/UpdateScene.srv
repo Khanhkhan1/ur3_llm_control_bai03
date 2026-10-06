@@ -1,0 +1,8 @@
+# Replace the cubes in MoveIt's planning scene with these camera detections (cube centers
+# on the table, base_link [m], yaw [rad]). The cube currently held stays attached.
+string[] names
+float64[] x
+float64[] y
+float64[] yaw
+---
+string status

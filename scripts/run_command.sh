@@ -30,6 +30,5 @@ if [ -z "${NINEROUTER_API_KEY:-}" ]; then
 fi
 
 exec "$PY" "$PREFIX/lib/ur3_llm_control/task_runner.py" --ros-args \
-  --params-file "$PREFIX/share/ur3_llm_control/config/scene.yaml" \
   --params-file "$PREFIX/share/ur3_llm_control/config/llm_config.yaml" \
   -p command:="$1"

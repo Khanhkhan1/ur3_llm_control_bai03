@@ -17,13 +17,22 @@
       filename="ignition-gazebo-scene-broadcaster-system"
       name="gz::sim::systems::SceneBroadcaster">
     </plugin>
+    <!-- Renders the camera sensors below. ogre (v1): ogre2 cannot create its
+         render window off the main thread on macOS when Gazebo runs headless. -->
     <plugin
-      filename="ignition-gazebo-contact-system"
-      name="gz::sim::systems::Contact">
+      filename="ignition-gazebo-sensors-system"
+      name="gz::sim::systems::Sensors">
+      <render_engine>ogre</render_engine>
     </plugin>
 
+    <scene>
+      <ambient>0.6 0.6 0.6 1</ambient>
+      <background>0.85 0.88 0.92 1</background>
+      <shadows>false</shadows>
+    </scene>
+
     <light type="directional" name="sun">
-      <cast_shadows>true</cast_shadows>
+      <cast_shadows>false</cast_shadows>
       <pose>0 0 10 0 0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>
       <specular>0.2 0.2 0.2 1</specular>
@@ -33,7 +42,7 @@
         <linear>0.01</linear>
         <quadratic>0.001</quadratic>
       </attenuation>
-      <direction>-0.5 0.1 -0.9</direction>
+      <direction>-0.3 0.1 -0.9</direction>
     </light>
 
     <model name="ground_plane">
@@ -55,130 +64,214 @@
             </plane>
           </geometry>
           <material>
-            <ambient>0.8 0.8 0.8 1</ambient>
-            <diffuse>0.8 0.8 0.8 1</diffuse>
-            <specular>0.8 0.8 0.8 1</specular>
+            <ambient>0.45 0.45 0.45 1</ambient>
+            <diffuse>0.45 0.45 0.45 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Work table: top surface at z = 0.20 m, within the UR3's reach -->
+    <!-- Work table: top surface at z = 0.10 m, x in [0.08, 0.50], y in [-0.36, 0.36].
+         Low enough that the UR3 (base on the floor at the origin) reaches the whole
+         top with the gripper pointing down. Neutral grey so it never passes as a cube
+         color in the camera's HSV segmentation. -->
     <model name="table">
       <static>true</static>
-      <pose>0.35 0 0.10 0 0 0</pose>
+      <pose>0.29 0 0.05 0 0 0</pose>
       <link name="link">
         <collision name="collision">
           <geometry>
-            <box><size>0.5 0.8 0.20</size></box>
+            <box><size>0.42 0.72 0.10</size></box>
           </geometry>
         </collision>
         <visual name="visual">
           <geometry>
-            <box><size>0.5 0.8 0.20</size></box>
+            <box><size>0.42 0.72 0.10</size></box>
           </geometry>
           <material>
-            <ambient>0.55 0.4 0.28 1</ambient>
-            <diffuse>0.55 0.4 0.28 1</diffuse>
+            <ambient>0.62 0.62 0.6 1</ambient>
+            <diffuse>0.62 0.62 0.6 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
-    <!-- Objects: red_cube / yellow_cube / blue_cube, 4 cm cubes resting on the table -->
-    <model name="red_cube">
-      <static>true</static>
-      <pose>0.35 0.18 0.22 0 0 0</pose>
-      <link name="link">
-        <collision name="collision">
-          <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
-        </collision>
-        <visual name="visual">
-          <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
-          <material>
-            <ambient>0.8 0.05 0.05 1</ambient>
-            <diffuse>0.8 0.05 0.05 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <model name="yellow_cube">
-      <static>true</static>
-      <pose>0.35 0.0 0.22 0 0 0</pose>
-      <link name="link">
-        <collision name="collision">
-          <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
-        </collision>
-        <visual name="visual">
-          <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
-          <material>
-            <ambient>0.85 0.75 0.05 1</ambient>
-            <diffuse>0.85 0.75 0.05 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <model name="blue_cube">
-      <static>true</static>
-      <pose>0.35 -0.18 0.22 0 0 0</pose>
-      <link name="link">
-        <collision name="collision">
-          <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
-        </collision>
-        <visual name="visual">
-          <geometry><box><size>0.04 0.04 0.04</size></box></geometry>
-          <material>
-            <ambient>0.05 0.15 0.8 1</ambient>
-            <diffuse>0.05 0.15 0.8 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Placement zones (flat markers on the table). Per-student mapping
-         (student_id 20020675 -> P = 75 mod 6 = 3 -> A=Yellow, B=Blue, C=Red)
-         is shown by tinting each marker with its personal target color. -->
+    <!-- Placement zones: flat white squares with a dark border (visual only). Their
+         positions are part of the workspace definition (config/scene.yaml); whether a
+         zone is free or occupied is decided from the camera image. -->
     <model name="zone_a_marker">
       <static>true</static>
-      <pose>0.20 0.18 0.201 0 0 0</pose>
+      <pose>0.24 0.17 0.1005 0 0 0</pose>
       <link name="link">
-        <visual name="visual">
-          <geometry><box><size>0.08 0.08 0.002</size></box></geometry>
-          <material>
-            <ambient>0.85 0.75 0.4 1</ambient>
-            <diffuse>0.85 0.75 0.4 1</diffuse>
-          </material>
+        <visual name="border">
+          <geometry><box><size>0.09 0.09 0.001</size></box></geometry>
+          <material><ambient>0.15 0.15 0.15 1</ambient><diffuse>0.15 0.15 0.15 1</diffuse></material>
+        </visual>
+        <visual name="inner">
+          <pose>0 0 0.0006 0 0 0</pose>
+          <geometry><box><size>0.08 0.08 0.001</size></box></geometry>
+          <material><ambient>0.97 0.97 0.97 1</ambient><diffuse>0.97 0.97 0.97 1</diffuse></material>
         </visual>
       </link>
     </model>
 
     <model name="zone_b_marker">
       <static>true</static>
-      <pose>0.20 0.0 0.201 0 0 0</pose>
+      <pose>0.24 0.0 0.1005 0 0 0</pose>
       <link name="link">
-        <visual name="visual">
-          <geometry><box><size>0.08 0.08 0.002</size></box></geometry>
-          <material>
-            <ambient>0.4 0.5 0.85 1</ambient>
-            <diffuse>0.4 0.5 0.85 1</diffuse>
-          </material>
+        <visual name="border">
+          <geometry><box><size>0.09 0.09 0.001</size></box></geometry>
+          <material><ambient>0.15 0.15 0.15 1</ambient><diffuse>0.15 0.15 0.15 1</diffuse></material>
+        </visual>
+        <visual name="inner">
+          <pose>0 0 0.0006 0 0 0</pose>
+          <geometry><box><size>0.08 0.08 0.001</size></box></geometry>
+          <material><ambient>0.97 0.97 0.97 1</ambient><diffuse>0.97 0.97 0.97 1</diffuse></material>
         </visual>
       </link>
     </model>
 
     <model name="zone_c_marker">
       <static>true</static>
-      <pose>0.20 -0.18 0.201 0 0 0</pose>
+      <pose>0.24 -0.17 0.1005 0 0 0</pose>
       <link name="link">
-        <visual name="visual">
-          <geometry><box><size>0.08 0.08 0.002</size></box></geometry>
-          <material>
-            <ambient>0.85 0.45 0.4 1</ambient>
-            <diffuse>0.85 0.45 0.4 1</diffuse>
-          </material>
+        <visual name="border">
+          <geometry><box><size>0.09 0.09 0.001</size></box></geometry>
+          <material><ambient>0.15 0.15 0.15 1</ambient><diffuse>0.15 0.15 0.15 1</diffuse></material>
         </visual>
+        <visual name="inner">
+          <pose>0 0 0.0006 0 0 0</pose>
+          <geometry><box><size>0.08 0.08 0.001</size></box></geometry>
+          <material><ambient>0.97 0.97 0.97 1</ambient><diffuse>0.97 0.97 0.97 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Five 5 cm dynamic cubes (graspable by the 2F-85, whose fingers open to ~80 mm).
+         Initial layout for the demo: blue_cube already sits in zone_b and green_cube
+         in zone_c, so "put X in zone B" cannot be done with a direct pick -> place. -->
+    <model name="red_cube">
+      <pose>0.38 0.13 0.125 0 0 0</pose>
+      <link name="link">
+        <inertial><mass>0.1</mass><inertia><ixx>4.2e-5</ixx><iyy>4.2e-5</iyy><izz>4.2e-5</izz></inertia></inertial>
+        <collision name="collision">
+          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <material><ambient>0.85 0.05 0.05 1</ambient><diffuse>0.85 0.05 0.05 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="yellow_cube">
+      <pose>0.38 -0.13 0.125 0 0 0</pose>
+      <link name="link">
+        <inertial><mass>0.1</mass><inertia><ixx>4.2e-5</ixx><iyy>4.2e-5</iyy><izz>4.2e-5</izz></inertia></inertial>
+        <collision name="collision">
+          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <material><ambient>0.9 0.8 0.05 1</ambient><diffuse>0.9 0.8 0.05 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="blue_cube">
+      <pose>0.24 0.0 0.125 0 0 0</pose>
+      <link name="link">
+        <inertial><mass>0.1</mass><inertia><ixx>4.2e-5</ixx><iyy>4.2e-5</iyy><izz>4.2e-5</izz></inertia></inertial>
+        <collision name="collision">
+          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <material><ambient>0.05 0.2 0.9 1</ambient><diffuse>0.05 0.2 0.9 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="green_cube">
+      <pose>0.24 -0.17 0.125 0 0 0</pose>
+      <link name="link">
+        <inertial><mass>0.1</mass><inertia><ixx>4.2e-5</ixx><iyy>4.2e-5</iyy><izz>4.2e-5</izz></inertia></inertial>
+        <collision name="collision">
+          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <material><ambient>0.05 0.7 0.1 1</ambient><diffuse>0.05 0.7 0.1 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="purple_cube">
+      <pose>0.40 0.0 0.125 0 0 0</pose>
+      <link name="link">
+        <inertial><mass>0.1</mass><inertia><ixx>4.2e-5</ixx><iyy>4.2e-5</iyy><izz>4.2e-5</izz></inertia></inertial>
+        <collision name="collision">
+          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <surface><friction><ode><mu>1.0</mu><mu2>1.0</mu2></ode></friction></surface>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
+          <material><ambient>0.55 0.1 0.8 1</ambient><diffuse>0.55 0.1 0.8 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Overhead RGB camera used for perception: 1.05 m above the floor, looking straight
+         down (pitch +90 deg) at the table center. Image top = +x (far edge of the table),
+         image left = +y. Its pose and FOV are mirrored in config/scene.yaml (camera.*). -->
+    <model name="overhead_camera">
+      <static>true</static>
+      <pose>0.29 0 1.05 0 1.5708 0</pose>
+      <link name="link">
+        <visual name="body">
+          <geometry><box><size>0.04 0.06 0.04</size></box></geometry>
+          <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.1 0.1 0.1 1</diffuse></material>
+        </visual>
+        <sensor name="overhead_camera" type="camera">
+          <camera>
+            <horizontal_fov>0.8</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>480</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip><near>0.05</near><far>5</far></clip>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>5</update_rate>
+          <topic>overhead_camera/image</topic>
+        </sensor>
+      </link>
+    </model>
+
+    <!-- Side-view camera for the demo video only (not used for perception). -->
+    <model name="video_camera">
+      <static>true</static>
+      <pose>0.95 -0.62 0.72 0 0.52 2.42</pose>
+      <link name="link">
+        <sensor name="video_camera" type="camera">
+          <camera>
+            <horizontal_fov>0.9</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>480</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip><near>0.05</near><far>5</far></clip>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>10</update_rate>
+          <topic>video_camera/image</topic>
+        </sensor>
       </link>
     </model>
 

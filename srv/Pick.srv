@@ -1,3 +1,9 @@
+# Grasp `object`, resting on the table at (x, y) in base_link [m] with yaw [rad] about z.
+# The pose comes from the camera (scene_perception), not from a fixed table of positions.
 string object
+float64 x
+float64 y
+float64 yaw
 ---
 string status
+float64 finger_position

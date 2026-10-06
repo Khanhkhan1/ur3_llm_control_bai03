@@ -3,7 +3,7 @@
 <package format="3">
   <name>ur3_llm_control</name>
   <version>0.1.0</version>
-  <description>UR3 pick-and-place controlled by natural-language commands via an LLM task planner (skills executed through MoveIt 2).</description>
+  <description>UR3 + Robotiq 2F-85 + overhead camera in Gazebo: natural-language commands planned by an LLM into validated skill plans (perception, pick/place with physical grasping) executed through MoveIt 2.</description>
   <maintainer email="khanh20022810@gmail.com">Le Khanh</maintainer>
   <license>Apache-2.0</license>
 
@@ -16,14 +16,25 @@
   <depend>moveit_ros_planning</depend>
   <depend>moveit_msgs</depend>
   <depend>tf2</depend>
+  <depend>tf2_ros</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>tf2_eigen</depend>
   <depend>visualization_msgs</depend>
+  <depend>control_msgs</depend>
+  <depend>rclcpp_action</depend>
 
   <exec_depend>rosidl_default_runtime</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>robotiq_description</exec_depend>
+  <exec_depend>ur_simulation_gz</exec_depend>
+  <exec_depend>ur_moveit_config</exec_depend>
 
   <member_of_group>rosidl_interface_packages</member_of_group>
 

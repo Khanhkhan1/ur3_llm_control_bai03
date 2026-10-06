@@ -1,41 +1,21 @@
-# Object and zone positions shared by skill_server (which moves the robot)
-# and task_runner (which only needs the name lists, to validate an LLM plan).
-# Duplicated under both node names rather than a "/**:" wildcard -- wildcard
-# parameter overrides were observed not to reach get_parameter() reliably
-# with this ROS 2 Humble / RoboStack build.
+# skill_server parameters (motion only -- skill_server never stores where the cubes are;
+# every pick/place gets its coordinates from the camera through task_runner).
+# The workspace layout shared by the Python nodes is in config/workspace.yaml.
 skill_server:
   ros__parameters:
     planning_group: "ur_manipulator"
-    # Table top is at z=0.20 in worlds/tabletop.sdf; cubes are 4 cm, centered
-    # at z=0.22. approach_height is how far above the target the end-effector
-    # lifts before/after each pick or place (must clear the table + cube).
-    approach_height: 0.12
-    pick_descend_z: 0.22
-    place_descend_z: 0.22
-    velocity_scaling: 0.15
-    acceleration_scaling: 0.15
-
-    objects:
-      names: ["red_cube", "yellow_cube", "blue_cube"]
-      red_cube.x: 0.35
-      red_cube.y: 0.18
-      yellow_cube.x: 0.35
-      yellow_cube.y: 0.0
-      blue_cube.x: 0.35
-      blue_cube.y: -0.18
-
-    zones:
-      names: ["zone_a", "zone_b", "zone_c"]
-      zone_a.x: 0.20
-      zone_a.y: 0.18
-      zone_b.x: 0.20
-      zone_b.y: 0.0
-      zone_c.x: 0.20
-      zone_c.y: -0.18
-
-task_runner:
-  ros__parameters:
-    objects:
-      names: ["red_cube", "yellow_cube", "blue_cube"]
-    zones:
-      names: ["zone_a", "zone_b", "zone_c"]
+    # Table from worlds/tabletop.sdf (center + size), added to MoveIt's planning scene.
+    table_center: [0.29, 0.0, 0.05]
+    table_size: [0.42, 0.72, 0.10]
+    # Cubes are 5 cm; the camera reports their centers on the table (z = 0.125).
+    cube_size: 0.05
+    # tool0 height when the 2F-85 grips a cube resting on the table. The pads span
+    # 0.105-0.171 m below tool0 once closed on a 5 cm cube, so 0.282 keeps the pad tips
+    # ~1 cm above the table and the gripper body ~3 cm above the cube top.
+    grasp_z: 0.282
+    # Released this much higher than grasp_z, so the cube drops the last few mm.
+    place_clearance: 0.004
+    # How far above grasp_z the tool hovers before descending / after lifting.
+    approach_height: 0.10
+    velocity_scaling: 0.3
+    acceleration_scaling: 0.3

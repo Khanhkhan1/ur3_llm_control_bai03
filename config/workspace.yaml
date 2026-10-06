@@ -1,0 +1,50 @@
+# Workspace layout shared by scene_perception and task_runner (plain YAML, read directly).
+# Only fixed parts of the cell live here: table, zones, camera calibration. Where each cube
+# is, and whether a zone is free, always comes from the overhead camera.
+
+table:
+  top_z: 0.10
+  x_min: 0.08
+  x_max: 0.50
+  y_min: -0.36
+  y_max: 0.36
+
+cube_size: 0.05
+
+# Cubes the camera looks for (one per color); see COLOR_RANGES in scene_perception.py.
+objects: [red_cube, yellow_cube, blue_cube, green_cube, purple_cube]
+
+# At least ~0.22 m from the robot base: closer in, the UR3's shoulder/upper-arm housing
+# sweeps over a cube whenever the arm turns about its base.
+zones:
+  zone_a: {x: 0.24, y: 0.17}
+  zone_b: {x: 0.24, y: 0.0}
+  zone_c: {x: 0.24, y: -0.17}
+# A cube whose center is within this distance (along x and y) of a zone center is in it.
+zone_half_size: 0.045
+
+# Overhead camera (worlds/tabletop.sdf, model overhead_camera): pose of the camera link in
+# base_link and horizontal FOV, used to turn pixels into table coordinates.
+camera:
+  image_topic: /overhead_camera/image
+  info_topic: /overhead_camera/camera_info
+  x: 0.29
+  y: 0.0
+  z: 1.05
+  roll: 0.0
+  pitch: 1.5708
+  yaw: 0.0
+  hfov: 0.8
+
+# Area where find_free_position() may put an object aside (reachable with the gripper
+# pointing down, and min_radius away from the base like the zones), and the clearance it
+# keeps from other cubes and zone centers: the open fingers reach ~7.5 cm from the grasp
+# center, plus half a cube and a margin.
+free_space:
+  x_min: 0.22
+  x_max: 0.36
+  y_min: -0.25
+  y_max: 0.25
+  min_radius: 0.24
+  step: 0.01
+  clearance: 0.11
