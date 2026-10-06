@@ -42,4 +42,6 @@ $(ros2 pkg prefix ur3_llm_control)/lib/ur3_llm_control/run_command.sh "Put the r
 
 - Video demo: https://drive.google.com/file/d/1iSVjmQDtxVjKtzL9OC7fkzXTYYMzx3cH/view?usp=sharing
 
-![Demo](docs/demo.png)
+![Demo](docs/demo.gif)
+
+*GIF (2x speed): a test run where the planner first returns an invalid plan on purpose; the validator rejects it and the corrected plan is executed.*
