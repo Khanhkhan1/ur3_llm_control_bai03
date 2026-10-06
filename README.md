@@ -40,4 +40,6 @@ $(ros2 pkg prefix ur3_llm_control)/lib/ur3_llm_control/run_command.sh "Put the r
 
 ## Result
 
+- Video demo: https://drive.google.com/file/d/1iSVjmQDtxVjKtzL9OC7fkzXTYYMzx3cH/view?usp=sharing
+
 ![Demo](docs/demo.png)
